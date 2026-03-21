@@ -6,7 +6,7 @@ This branch repository is a fork of [BtbN/FFmpeg-Builds](https://github.com/BtbN
 
 Under normal circumstances, this project automatically builds every 20 days. I would not spend much time or effort maintaining this repository, so submitted issues, pulled requests, and errors of Actions may not be addressed in a timely manner. You can also try forking the [upstream repository](https://github.com/BtbN/FFmpeg-Builds) and building the software that meets your needs yourself—it won't be too difficult.
 
-You can click [here](https://github.com/Zara-Line/FFmpeg-Stable-Nonfree/releases/latest) to get the latest pre-built FFmpeg nonfree package, or obtain other versions from [Releases](https://github.com/Zara-Line/FFmpeg-Stable-Nonfree/releases). Please note that the automated build process may sometimes create a new Release in advance without having had time to upload all the files. In such cases, you may encounter download issues—please wait a moment.
+You can click [here](https://github.com/Zara-Line/FFmpeg-Stable-Nonfree/releases/latest) to get the latest pre-built FFmpeg nonfree package, or obtain other versions from [Releases](https://github.com/Zara-Line/FFmpeg-Stable-Nonfree/releases). Please note that the auto builds process may sometimes create a new Release in advance without having had time to upload all the files. In such cases, you may encounter download issues—please wait a moment.
 
 ## Below is the README of the Upstream Repository
 
