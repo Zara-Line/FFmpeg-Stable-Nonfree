@@ -4,7 +4,7 @@
 
 This branch repository is a fork of [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds) used to automatically build the nonfree version of FFmpeg, including commonly used codecs such as **fdk-aac** that do not comply with GPL or LGPL standards, while also supporting a relatively comprehensive range of hardware encoding and decoding capabilities. 
 
-Under normal circumstances, this project automatically builds every 20 days. Due to work commitments, I will not spend much time or effort maintaining this repository, so submitted issues, pull requests, and CI errors may not be addressed in a timely manner. You can also try forking the [upstream repository](https://github.com/BtbN/FFmpeg-Builds) and building the software that meets your needs yourself—it won't be too difficult.
+Under normal circumstances, this project automatically builds every 20 days. I would not spend much time or effort maintaining this repository, so submitted issues, pulled requests, and errors of Actions may not be addressed in a timely manner. You can also try forking the [upstream repository](https://github.com/BtbN/FFmpeg-Builds) and building the software that meets your needs yourself—it won't be too difficult.
 
 You can click [here](https://github.com/Zara-Line/FFmpeg-Stable-Nonfree/releases/latest) to get the latest pre-built FFmpeg nonfree package, or obtain other versions from [Releases](https://github.com/Zara-Line/FFmpeg-Stable-Nonfree/releases).
 
