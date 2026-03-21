@@ -133,7 +133,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [win32,win64,winarm64,linux32,linux64,linuxarm64,linuxppc64,linuxmips64,linuxriscv64]
+        target: [win64,winarm64,linux64,linuxarm64]
     steps:
       - name: Free Disk-Space
         run: df -h && sudo apt-get clean && docker system prune -a -f && sudo rm -rf /opt/ghc /usr/local/.ghcup /usr/local/lib/android && df -h
@@ -189,7 +189,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [win64,linux64]
+        target: [win64,winarm64,linux64,linuxarm64]
         variant: [gpl,nonfree,gpl 8.0,gpl 7.1,nonfree 8.0,nonfree 7.1,gpl-shared,nonfree-shared,gpl-shared 8.0,gpl-shared 7.1,nonfree-shared 8.0,nonfree-shared 7.1]
         include:
           - target: win64
