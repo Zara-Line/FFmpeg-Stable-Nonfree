@@ -1,14 +1,18 @@
 # About This Repository
 
-如果您是中文母语者且不会英文，请[点击这个链接]()查看中文版说明，不过我现在还没做好，您先用机翻凑合看下。
+如果您是中文母语者且不会英文，请[点击这个链接]()查看中文版说明。
 
-This branch repository is a fork of [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds) used to automatically build the **nonfree** version of FFmpeg, including commonly used codecs such as **fdk-aac** that do not comply with GPL or LGPL, while also supporting a relatively comprehensive range of hardware encoding and decoding capabilities. Of course, if you’re willing to sacrifice functionality and convenience in the name of "*freedom*", you can always get the GPL and LGPL versions from the repositories recommended by the official [FFmpeg](https://ffmpeg.org/download.html) project.
+**TL;DR** jump to the [Download Table](#download-the-latest-release).
+
+This branch repository is a fork of [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds) used to automatically build the **nonfree** version of FFmpeg, including commonly used codecs such as **fdk-aac** that do not comply with GPL or LGPL, while also supporting a relatively comprehensive range of hardware encoding and decoding capabilities. Of course, if you’re willing to sacrifice functionality and convenience in the name of "*freedom*", you can always get the GPL and LGPL versions from the repositories recommended by the [FFmpeg](https://ffmpeg.org/download.html) official.
 
 Under normal circumstances, this project automatically builds every 15 days. I would not spend much time or effort maintaining this repository, so submitted issues, pulled requests, and errors of Actions may not be addressed in a timely manner. You can also try forking the [upstream repository](https://github.com/BtbN/FFmpeg-Builds) and building the software that meets your needs yourself—it won't be too difficult.
 
-You can check the table below to get the latest pre-built FFmpeg nonfree package, or obtain other versions from [Releases](https://github.com/Zara-Line/FFmpeg-Stable-Nonfree/releases). Please note that the auto builds process may sometimes create a new Release in advance without having had time to upload all the files. In such cases, you may encounter download issues—please wait a moment.
+You can check the [table below](#download-the-latest-release) to get the latest pre-built FFmpeg nonfree package, or obtain other versions from [Releases](https://github.com/Zara-Line/FFmpeg-Stable-Nonfree/releases/). Please note that the auto builds process may sometimes create a new Release in advance without having had time to upload all the files. In such cases, you may encounter download issues—please wait a moment.
 
 We strongly recommend using the **Shared** version, as it can be directly called by most of apps via its API and occupies less disk space. However, if you prefer portable apps or if you already have the Shared version installed on your computer and need to ensure compatibility, then the **SA** (*abbr* of Standalone) version is more suitable.
+
+## Download the Latest Release
 
 <table>
     <thead>
