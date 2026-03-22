@@ -2,11 +2,68 @@
 
 如果您是中文母语者且不会英文，请[点击这个链接]()查看中文版说明，不过我现在还没做好，您先用机翻凑合看下。
 
-This branch repository is a fork of [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds) used to automatically build the nonfree version of FFmpeg, including commonly used codecs such as **fdk-aac** that do not comply with GPL or LGPL, while also supporting a relatively comprehensive range of hardware encoding and decoding capabilities. 
+This branch repository is a fork of [BtbN/FFmpeg-Builds](https://github.com/BtbN/FFmpeg-Builds) used to automatically build the **nonfree** version of FFmpeg, including commonly used codecs such as **fdk-aac** that do not comply with GPL or LGPL, while also supporting a relatively comprehensive range of hardware encoding and decoding capabilities. Of course, if you’re willing to sacrifice functionality and convenience in the name of "*freedom*", you can always get the GPL and LGPL versions from the repositories recommended by the official [FFmpeg](https://ffmpeg.org/download.html) project.
 
-Under normal circumstances, this project automatically builds every 20 days. I would not spend much time or effort maintaining this repository, so submitted issues, pulled requests, and errors of Actions may not be addressed in a timely manner. You can also try forking the [upstream repository](https://github.com/BtbN/FFmpeg-Builds) and building the software that meets your needs yourself—it won't be too difficult.
+Under normal circumstances, this project automatically builds every 15 days. I would not spend much time or effort maintaining this repository, so submitted issues, pulled requests, and errors of Actions may not be addressed in a timely manner. You can also try forking the [upstream repository](https://github.com/BtbN/FFmpeg-Builds) and building the software that meets your needs yourself—it won't be too difficult.
 
-You can click [here](https://github.com/Zara-Line/FFmpeg-Stable-Nonfree/releases/latest) to get the latest pre-built FFmpeg nonfree package, or obtain other versions from [Releases](https://github.com/Zara-Line/FFmpeg-Stable-Nonfree/releases). Please note that the auto builds process may sometimes create a new Release in advance without having had time to upload all the files. In such cases, you may encounter download issues—please wait a moment.
+You can check the table below to get the latest pre-built FFmpeg nonfree package, or obtain other versions from [Releases](https://github.com/Zara-Line/FFmpeg-Stable-Nonfree/releases). Please note that the auto builds process may sometimes create a new Release in advance without having had time to upload all the files. In such cases, you may encounter download issues—please wait a moment.
+
+We strongly recommend using the **Shared** version, as it can be directly called by most of apps via its API and occupies less disk space. However, if you prefer portable apps or if you already have the Shared version installed on your computer and need to ensure compatibility, then the **SA** (*abbr* of Standalone) version is more suitable.
+
+<table>
+    <thead>
+        <tr>
+            <th>Arch</th>
+            <th>System</th>
+            <th>Nightly</th>
+            <th>8.0</th>
+            <th>7.1</th>
+            <th>6.1</th>
+            <th>5.1</th>
+            <th>4.4</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td rowspan="2">x64</td>
+            <td class="system-col">Windows</td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>  <!--Nightly-->
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>  <!--8.0-->
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>  <!--7.1-->
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>  <!--6.1-->
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>  <!--5.1-->
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>  <!--4.4-->
+        </tr>
+        <tr>
+            <td class="system-col">Linux</td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>
+            <td rowspan="3">Not provide</td>  <!--4.4-->
+        </tr>
+        <tr>
+            <td rowspan="2">ARM64</td>
+            <td class="system-col">Windows</td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>
+            <td rowspan="2">Not provide</td>  <!--5.1-->
+            <!--4.4 Not provide-->
+        </tr>
+        <tr>
+            <td class="system-col">Linux</td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>
+            <td><a href="">Shared</a>&emsp;<a href="">SA</a></td>
+            <!--5.1 Not provide-->
+            <!--4.4 Not provide-->
+        </tr>
+    </tbody>
+</table>
 
 ## Below is the README of the Upstream Repository
 
