@@ -32,6 +32,8 @@ jobs:
 
       - name: Get Release Info
         id: release_info
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             # Get info from manual input
