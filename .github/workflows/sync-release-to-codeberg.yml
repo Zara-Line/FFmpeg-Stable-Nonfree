@@ -1,0 +1,99 @@
+# .github/workflows/sync-release-to-codeberg.yml
+name: Sync GitHub Release to Codeberg
+
+on:
+  release:
+    # Trigger when GitHub release is published or edited
+    types: [published, edited]
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read  # Read release information
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch full history for tags
+
+      - name: Install forgejo-cli (fj)
+        run: |
+          # Download latest fj binary
+          curl -L https://codeberg.org/forgejo-contrib/forgejo-cli/releases/download/latest/forgejo-cli-linux-amd64 -o fj
+          chmod +x fj
+          sudo mv fj /usr/local/bin/
+
+      - name: Get Release Info
+        id: release_info
+        run: |
+          # Extract release information from GitHub event
+          TAG_NAME="${{ github.event.release.tag_name }}"
+          RELEASE_NAME="${{ github.event.release.name }}"
+          RELEASE_BODY="${{ github.event.release.body }}"
+          PRERELEASE="${{ github.event.release.prerelease }}"
+
+          # Save tag and release name for later steps
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+          echo "release_name=$RELEASE_NAME" >> $GITHUB_OUTPUT
+
+          # Save release body to a file (handles multi-line content)
+          echo "$RELEASE_BODY" > release_body.md
+          echo "body_file=release_body.md" >> $GITHUB_OUTPUT
+
+          # Set prerelease flag if applicable
+          if [ "$PRERELEASE" = "true" ]; then
+            echo "prerelease_flag=--prerelease" >> $GITHUB_OUTPUT
+          else
+            echo "prerelease_flag=" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Sync to Codeberg
+        env:
+          CODEBERG_TOKEN: ${{ secrets.CODEBERG_TOKEN }}
+        run: |
+          # Configure fj to use Codeberg
+          export FORGEJO_TOKEN="$CODEBERG_TOKEN"
+
+          # Check if release already exists on Codeberg
+          # Create if not exists, update if exists
+          if fj release view "${{ steps.release_info.outputs.tag_name }}" \
+             --repo "${{ secrets.CODEBERG_REPO }}" 2>/dev/null; then
+            echo "Release exists, updating..."
+            fj release edit "${{ steps.release_info.outputs.tag_name }}" \
+              --repo "${{ secrets.CODEBERG_REPO }}" \
+              --title "${{ steps.release_info.outputs.release_name }}" \
+              --body-file "${{ steps.release_info.outputs.body_file }}" \
+              ${{ steps.release_info.outputs.prerelease_flag }}
+          else
+            echo "Creating new release..."
+            fj release create "${{ steps.release_info.outputs.tag_name }}" \
+              --repo "${{ secrets.CODEBERG_REPO }}" \
+              --title "${{ steps.release_info.outputs.release_name }}" \
+              --body-file "${{ steps.release_info.outputs.body_file }}" \
+              ${{ steps.release_info.outputs.prerelease_flag }}
+          fi
+
+      - name: Upload Release Assets
+        env:
+          CODEBERG_TOKEN: ${{ secrets.CODEBERG_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Download and upload GitHub release assets
+          ASSETS_URL="${{ github.event.release.assets_url }}"
+
+          # Use GitHub CLI to download all assets from the release
+          gh release download "${{ steps.release_info.outputs.tag_name }}" \
+            --repo "${{ github.repository }}" \
+            --dir ./assets \
+            --skip-existing
+
+          # Upload each asset to Codeberg
+          for asset in ./assets/*; do
+            if [ -f "$asset" ]; then
+              echo "Uploading $asset to Codeberg..."
+              fj release upload "${{ steps.release_info.outputs.tag_name }}" \
+                --repo "${{ secrets.CODEBERG_REPO }}" \
+                --file "$asset"
+            fi
+          done
