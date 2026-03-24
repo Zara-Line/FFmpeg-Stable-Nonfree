@@ -2,6 +2,12 @@
 name: Sync GitHub Release to Codeberg
 
 on:
+  workflow_dispatch:
+      inputs:
+        tag_name:
+          description: 'Release tag to sync'
+          required: true
+          type: string
   release:
     # Trigger when GitHub release is published or edited
     types: [published, edited]
@@ -27,25 +33,27 @@ jobs:
       - name: Get Release Info
         id: release_info
         run: |
-          # Extract release information from GitHub event
-          TAG_NAME="${{ github.event.release.tag_name }}"
-          RELEASE_NAME="${{ github.event.release.name }}"
-          RELEASE_BODY="${{ github.event.release.body }}"
-          PRERELEASE="${{ github.event.release.prerelease }}"
-
-          # Save tag and release name for later steps
-          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
-          echo "release_name=$RELEASE_NAME" >> $GITHUB_OUTPUT
-
-          # Save release body to a file (handles multi-line content)
-          echo "$RELEASE_BODY" > release_body.md
-          echo "body_file=release_body.md" >> $GITHUB_OUTPUT
-
-          # Set prerelease flag if applicable
-          if [ "$PRERELEASE" = "true" ]; then
-            echo "prerelease_flag=--prerelease" >> $GITHUB_OUTPUT
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            # Get info from manual input
+            TAG_NAME="${{ inputs.tag_name }}"
+            # Fetch release info via GitHub CLI
+            RELEASE_INFO=$(gh release view "$TAG_NAME" --json name,body,prerelease)
+            echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
+            echo "release_name=$(echo $RELEASE_INFO | jq -r .name)" >> $GITHUB_OUTPUT
+            echo "$(echo $RELEASE_INFO | jq -r .body)" > release_body.md
+            echo "body_file=release_body.md" >> $GITHUB_OUTPUT
+            if [ "$(echo $RELEASE_INFO | jq -r .prerelease)" = "true" ]; then
+              echo "prerelease_flag=--prerelease" >> $GITHUB_OUTPUT
+            fi
           else
-            echo "prerelease_flag=" >> $GITHUB_OUTPUT
+            # Normal release event
+            echo "tag_name=${{ github.event.release.tag_name }}" >> $GITHUB_OUTPUT
+            echo "release_name=${{ github.event.release.name }}" >> $GITHUB_OUTPUT
+            echo "${{ github.event.release.body }}" > release_body.md
+            echo "body_file=release_body.md" >> $GITHUB_OUTPUT
+            if [ "${{ github.event.release.prerelease }}" = "true" ]; then
+              echo "prerelease_flag=--prerelease" >> $GITHUB_OUTPUT
+            fi
           fi
 
       - name: Sync to Codeberg
