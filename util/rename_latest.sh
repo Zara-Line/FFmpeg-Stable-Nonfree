@@ -52,14 +52,14 @@ while [[ $# -gt 0 ]]; do
         ONAME="${ONAME%-[0-9]*.[0-9]*}"    # Cut off redundant version tag.
 
         # rename (mv) instead of compress
-        if [[ $INPUT == *.zip ]]; then
-            ONAME="$ONAME.zip"
-        elif [[ $INPUT == *.tar.xz ]]; then
-            ONAME="$ONAME.tar.xz"
-        else
-            echo "Unknown input file type: $INPUT"
-            exit 1
-        fi
+        # if [[ $INPUT == *.zip ]]; then
+        #     ONAME="$ONAME.zip"
+        # elif [[ $INPUT == *.tar.xz ]]; then
+        #     ONAME="$ONAME.tar.xz"
+        # else
+        #     echo "Unknown input file type: $INPUT"
+        #     exit 1
+        # fi
 
         mv "$INAME" "$RELEASE_DIR/$ONAME"
 
