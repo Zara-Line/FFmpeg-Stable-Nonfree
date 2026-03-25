@@ -49,8 +49,7 @@ while [[ $# -gt 0 ]]; do
         else
             ONAME="ffmpeg-$TAGNAME-latest-$(cut -d- -f3- <<<"$INAME")"
         fi
-        
-        ONAME="${ONAME%-[0-9]*.[0-9]*}"    # Cut off redundant version tag.
+
         mv "$INAME" "$ONAME"
 
         if [[ $INPUT == *.zip ]]; then
