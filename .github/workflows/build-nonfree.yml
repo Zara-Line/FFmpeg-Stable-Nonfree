@@ -12,6 +12,11 @@ on:
         type: boolean
         default: false
         required: false
+      doSyncRelease:
+        description: 'Sync release to other remotes'
+        type: boolean
+        default: false
+        required: false
       buildOnly:
         description: 'Only build ffmpeg'
         type: boolean
@@ -309,6 +314,7 @@ jobs:
           name: ffmpeg-${{ steps.strs.outputs.artifact_slug }}
           overwrite: true
           path: artifacts/*
+          retention-days: 30
   publish_release:
     name: Publish release
     if: ${{ !cancelled() && ( github.event_name == 'schedule' || github.event.inputs.doRelease == 'true' ) && needs.build_ffmpeg.result == 'success' }}
@@ -339,25 +345,40 @@ jobs:
           echo "rel_date=${RELDATE}" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ github.token }}
-      - name: Update Latest
+      - name: Update Latest Directly
         run: |
           set -xe
           shopt -s nullglob
           mkdir latest_artifacts
-          ./util/repack_latest.sh latest_artifacts artifacts/*.{zip,tar.xz}
+          ./util/rename_latest.sh latest_artifacts artifacts/*.{zip,tar.xz}
           (cd latest_artifacts && sha256sum *.{zip,tar.xz} > checksums.sha256)
           NAME="Latest Auto-Build (${{ steps.create_release.outputs.rel_date }})"
           TAGNAME="latest"
           gh release delete --cleanup-tag --yes "$TAGNAME" || true
           sleep 15
           gh release create "$TAGNAME" --target "master" --title "$NAME" latest_artifacts/*
+          echo "latest_tag_name=${TAGNAME}" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ github.token }}
+      # - name: Update Latest
+      #   run: |
+      #     set -xe
+      #     shopt -s nullglob
+      #     mkdir latest_artifacts
+      #     ./util/repack_latest.sh latest_artifacts artifacts/*.{zip,tar.xz}
+      #     (cd latest_artifacts && sha256sum *.{zip,tar.xz} > checksums.sha256)
+      #     NAME="Latest Auto-Build (${{ steps.create_release.outputs.rel_date }})"
+      #     TAGNAME="latest"
+      #     gh release delete --cleanup-tag --yes "$TAGNAME" || true
+      #     sleep 15
+      #     gh release create "$TAGNAME" --target "master" --title "$NAME" latest_artifacts/*
+      #   env:
+      #     GITHUB_TOKEN: ${{ github.token }}
       # - name: Update Wiki
       #   run: ./util/update_wiki.sh artifacts ${{ steps.create_release.outputs.tag_name }}
       #   env:
       #     GITHUB_TOKEN: ${{ github.token }}
-      - name: Prune old releases
-        run: ./util/prunetags.sh
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      # - name: Prune old releases
+      #   run: ./util/prunetags.sh
+      #   env:
+      #     GITHUB_TOKEN: ${{ github.token }}
