@@ -1,2 +1,2 @@
 #!/bin/bash
-GIT_BRANCH="release/8.0"
+GIT_BRANCH="release/8.1"
