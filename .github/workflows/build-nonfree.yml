@@ -388,5 +388,10 @@ jobs:
         run: |
           set -xe
           shopt -s nullglob
-          sudo apt install -y glab forgejo-cli tea-cli
+          sudo apt-get install -y glab tea-cli 7zip
+          glab --version
+          tea-cli --version
+          sudo 7z x ./tools/forgejo-cli-linux.7z -o/usr/bin
+          sudo chmod +x /usr/bin/fj
+          fj -H codeberg --version
         # Test Only
