@@ -382,3 +382,11 @@ jobs:
       #   run: ./util/prunetags.sh
       #   env:
       #     GITHUB_TOKEN: ${{ github.token }}
+      - name: Prepare Releases Syncing
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -xe
+          shopt -s nullglob
+          sudo apt install -y glab forgejo-cli tea-cli
+        # Test Only
