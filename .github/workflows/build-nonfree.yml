@@ -7,6 +7,11 @@ on:
   #     - 'LICENSE'
   workflow_dispatch:
     inputs:
+      buildOnly:
+        description: 'Only build ffmpeg'
+        type: boolean
+        default: false
+        required: false
       doRelease:
         description: 'Publish new release'
         type: boolean
@@ -14,11 +19,6 @@ on:
         required: false
       doSyncRelease:
         description: 'Sync release to other remotes'
-        type: boolean
-        default: false
-        required: false
-      buildOnly:
-        description: 'Only build ffmpeg'
         type: boolean
         default: false
         required: false
@@ -320,6 +320,7 @@ jobs:
     if: ${{ !cancelled() && ( github.event_name == 'schedule' || github.event.inputs.doRelease == 'true' ) && needs.build_ffmpeg.result == 'success' }}
     needs: build_ffmpeg
     runs-on: ubuntu-latest
+    environment: external-remotes-access
     steps:
       - name: Free Disk-Space
         run: df -h && sudo apt-get clean && docker system prune -a -f && sudo rm -rf /opt/ghc /usr/local/.ghcup /usr/local/lib/android && df -h
@@ -339,6 +340,12 @@ jobs:
           RELDATE="$(date +'%Y-%m-%d %H:%M')"
           NAME="Auto-Build $RELDATE"
           TAGNAME="autobuild-$(date +'%Y-%m-%d-%H-%M')"
+
+          # Save Tag and Release Name
+          mkdir env
+          echo "release_name=$NAME" > env/release_name
+          echo "tag_name=$TAGNAME" > env/tag_name
+
           (cd artifacts && sha256sum *.{zip,tar.xz} > checksums.sha256)
           gh release create "$TAGNAME" --target "master" --title "$NAME" artifacts/*.{zip,tar.xz} artifacts/checksums.*
           echo "tag_name=${TAGNAME}" >> $GITHUB_OUTPUT
@@ -346,6 +353,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
       - name: Update Latest Directly
+        id: update_latest_directly
         run: |
           set -xe
           shopt -s nullglob
@@ -354,44 +362,50 @@ jobs:
           (cd latest_artifacts && sha256sum *.{zip,tar.xz} > checksums.sha256)
           NAME="Latest Auto-Build (${{ steps.create_release.outputs.rel_date }})"
           TAGNAME="latest"
+
+          # Save Latest Release Name
+          echo "latest_name=$NAME" > env/latest_name
+
           gh release delete --cleanup-tag --yes "$TAGNAME" || true
           sleep 15
-          gh release create "$TAGNAME" --target "master" --title "$NAME" latest_artifacts/*
+          gh release create "$TAGNAME" --target "master" --title "$NAME" --notes-file "notes/releases/latest_github.md" latest_artifacts/*
           echo "latest_tag_name=${TAGNAME}" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: ${{ github.token }}
-      # - name: Update Latest
-      #   run: |
-      #     set -xe
-      #     shopt -s nullglob
-      #     mkdir latest_artifacts
-      #     ./util/repack_latest.sh latest_artifacts artifacts/*.{zip,tar.xz}
-      #     (cd latest_artifacts && sha256sum *.{zip,tar.xz} > checksums.sha256)
-      #     NAME="Latest Auto-Build (${{ steps.create_release.outputs.rel_date }})"
-      #     TAGNAME="latest"
-      #     gh release delete --cleanup-tag --yes "$TAGNAME" || true
-      #     sleep 15
-      #     gh release create "$TAGNAME" --target "master" --title "$NAME" latest_artifacts/*
-      #   env:
-      #     GITHUB_TOKEN: ${{ github.token }}
-      # - name: Update Wiki
-      #   run: ./util/update_wiki.sh artifacts ${{ steps.create_release.outputs.tag_name }}
-      #   env:
-      #     GITHUB_TOKEN: ${{ github.token }}
-      # - name: Prune old releases
-      #   run: ./util/prunetags.sh
-      #   env:
-      #     GITHUB_TOKEN: ${{ github.token }}
-      - name: Prepare Releases Syncing
+      - name: Sync Releases
+        if: ${{ !cancelled() && ( github.event_name == 'schedule' || github.event.inputs.doSyncRelease == 'true' ) && needs.build_ffmpeg.result == 'success' && steps.create_release.outcome == 'success' && steps.update_latest_directly.outcome == 'success' }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           set -xe
           shopt -s nullglob
-          sudo apt-get install -y glab tea-cli 7zip
-          glab --version
-          tea-cli --version
-          sudo 7z x ./tools/forgejo-cli-linux.7z -o/usr/bin
-          sudo chmod +x /usr/bin/fj
-          fj -H codeberg --version
-        # Test Only
+
+          # Prepare Tools
+          sudo apt-get install -y glab 7zip
+          sudo 7z x ./tools/tea-linux-amd64.7z -o/usr/bin
+          sudo chmod +x /usr/bin/tea
+
+          # Authorize Tools
+          glab auth login --hostname "gitlab.com" --token "${{ secrets.GITLAB_COM_TOKEN }}"
+          tea login add -u "gitea.com" -t "${{ secrets.GITEA_COM_TOKEN }}"
+          tea login add -u "codeberg.org" -t "${{ secrets.CODEBERG_ORG_TOKEN }}"
+
+          # Get Env
+          release_name=$(cat env/release_name)
+          tag_name=$(cat env/tag_name)
+          latest_name=$(cat env/latest_name)
+
+          # Sync Release
+          glab release create "$tag_name" artifacts/*.{zip,tar.xz} artifacts/checksums.* -r "master" -n "$release_name" -R "${{ vars.REPOSITORY_NAME }}"
+          tea r c --tag "$tag_name" $(printf -- '-a %s ' artifacts/*.{zip,tar.xz}) $(printf -- '-a %s ' artifacts/checksums.*) --target "master" -t "$release_name" -r "${{ vars.REPOSITORY_NAME }}" --login "gitea.com"
+          tea r c --tag "$tag_name" $(printf -- '-a %s ' artifacts/*.{zip,tar.xz}) $(printf -- '-a %s ' artifacts/checksums.*) --target "master" -t "$release_name" -r "${{ vars.REPOSITORY_NAME }}" --login "codeberg.org"
+
+          # Delete Latest
+          glab release delete "latest" -y -t -R "${{ vars.REPOSITORY_NAME }}" || true
+          tea r rm -y --delete-tag "latest" -r "${{ vars.REPOSITORY_NAME }}" --login "gitea.com" || true
+          tea r rm -y --delete-tag "latest" -r "${{ vars.REPOSITORY_NAME }}" --login "codeberg.org" || true
+
+          # Sync Latest
+          glab release create "latest" latest_artifacts/* -r "master" -n "$latest_name" -F "notes/releases/latest_gitlab.md" -R "${{ vars.REPOSITORY_NAME }}"
+          tea r c --tag "latest" $(printf -- '-a %s ' latest_artifacts/*) --target "master" -t "$release_name" -f "notes/releases/latest_gitea.md" -r "${{ vars.REPOSITORY_NAME }}" --login "gitea.com"
+          tea r c --tag "latest" $(printf -- '-a %s ' latest_artifacts/*) --target "master" -t "$release_name" -f "notes/releases/latest_codeberg.md" -r "${{ vars.REPOSITORY_NAME }}" --login "codeberg.org"
